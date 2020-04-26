@@ -1,4 +1,4 @@
-package cadlabs;
+package cadlabs.sql;
 
 import java.util.Arrays;
 

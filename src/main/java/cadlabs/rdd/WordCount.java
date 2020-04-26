@@ -1,4 +1,4 @@
-package cadlabs;
+package cadlabs.rdd;
 
 import java.util.Arrays;
 
@@ -8,7 +8,7 @@ import org.apache.spark.sql.SparkSession;
 
 import scala.Tuple2;
 
-public class WordCountRDD {
+public class WordCount {
 	
 	private static final String DEFAULT_FILE = "data/hamlet.txt";
 
