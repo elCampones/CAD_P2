@@ -5,30 +5,124 @@ import java.util.Map;
 
 public class Flight {
 
+	/**
+	 * day of Month
+	 */
+	final String dofM;
+	
+	/**
+	 * day of Week
+	 */
+	final String dofW;
+	
+	/**
+	 * The carrier
+	 */
+	final String carrier;
+	
+	/**
+	 * Airplane tail number
+	 */
+	final String tailnum;
+	
+	/**
+	 * Flight number
+	 */
+	final int flnum;
+	
+	
+	/**
+	 * Identifier of the airport of origin
+	 */
+	final long org_id;
+	
+	
+	/**
+	 * Name of the airport of origin
+	 */
+	final String origin;
+	
+	/**
+	 * Identifier of the airport of destination
+	 */
+	final long dest_id;
+	
+	/**
+	 * Name of the airport of destination
+	 */
+	final String dest;
+	
+	/**
+	 * Scheduled departure time
+	 */
+	final double crsdeptime;
+	
+	/**
+	 * Departure time
+	 */
+	final double deptime;
+	
+	/**
+	 * Delay at departure
+	 */
+	final double depdelaymins;
+	
+	/**
+	 * Scheduled arrival time
+	 */
+	final double crsarrtime;
+	
+	/**
+	 * Arrival time
+	 */
+	final double arrtime;
+	
+	/**
+	 * Delay at arrival
+	 */
+	final double arrdelay;
+	
+	/**
+	 * Scheduled elapsed (flight) time
+	 */
+	final double crselapsedtime;
+	
+	/**
+	 * Distance between airports
+	 */
+	final int dist;
+	
+	/**
+	 * Identifier in a range [0..numberAirports-1] of the airport of arrival
+	 */
+	final long origInternalId; 
+	
+	
+	/**
+	 * Identifier in a range [0..numberAirports-1] of the airport of destination
+	 */
+	final long destInternalId; 
+	
+	
+	/**
+	 * Map of airport identifier into internal identifier
+	 */
 	private static final Map<Long, Integer> airports = new HashMap<Long, Integer>();
+	
+	
+	/**
+	 * Map of airport internal identifier into airport name
+	 */
 	private static final Map<Integer, String> airportsRev = new HashMap<Integer, String>();
+	
+	/**
+	 * Map of airport name into internal identifier
+	 */
 	private static final Map<String, Integer> airportsByName = new HashMap<String, Integer>();
+	
+	
 	private static int internalIds = 0;
 	
-	final String dofM;
-	final String dofW;
-	final String carrier;
-	final String tailnum;
-	final int flnum;
-	final long org_id;
-	final String origin;
-	final long dest_id;
-	final String dest;
-	final double crsdeptime;
-	final double deptime;
-	final double depdelaymins;
-	final double crsarrtime;
-	final double arrtime;
-	final double arrdelay;
-	final double crselapsedtime;
-	final int dist;
-	final long origInternalId; 
-	final long destInternalId; 
 
 	public Flight(String dofM, String dofW, String carrier, String tailnum, int flnum, long org_id, String origin,
 			long dest_id, String dest, double crsdeptime, double deptime, double depdelaymins, double crsarrtime,
