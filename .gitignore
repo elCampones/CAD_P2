@@ -11,3 +11,5 @@ gradlew.bat
 #Default stuff
 *.class
 *.log
+
+.idea/
