@@ -7,3 +7,7 @@ build
 gradle
 gradlew
 gradlew.bat
+
+#Default stuff
+*.class
+*.log
