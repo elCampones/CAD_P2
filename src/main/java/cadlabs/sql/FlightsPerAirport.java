@@ -19,6 +19,8 @@ public class FlightsPerAirport extends AbstractFlightAnalyser<List<Row>> {
 	
 	public List<Row> run() {
 		Dataset<Row> counts = this.flights.groupBy("origin").count();
+		
+		
 			
 		return counts.collectAsList();
 	}

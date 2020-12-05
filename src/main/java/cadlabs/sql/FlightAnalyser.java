@@ -32,10 +32,13 @@ public class FlightAnalyser {
 				textFile.map((MapFunction<String, Row>) l -> Flight.parseFlight(l), 
 				Flight.encoder()).cache();
 
-		//TODO
+		/*
+		 * 
+		 */
+		Dataset<Row> flightsPerRoute ;
 		
 		
-		for (Row r : flights.collectAsList())
+		for (Row r : flights.takeAsList(20))
 			System.out.println(r);
 		
 		
