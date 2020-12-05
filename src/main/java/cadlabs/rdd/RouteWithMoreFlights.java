@@ -23,9 +23,5 @@ public class RouteWithMoreFlights extends AbstractFlightAnalyser<Tuple2<Tuple2<S
                 ).reduce(
                         (v1, v2) -> v2._2 >= v1._2 ? v2 : v1
                 );
-
-//        return flightsMappedByRoute.reduce(
-//                (v1, v2) -> v2._2 >= v1._2 ? v2 : v1
-//        );
     }
 }
