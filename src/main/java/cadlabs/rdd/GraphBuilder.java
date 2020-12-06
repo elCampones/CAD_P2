@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-
 import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
+
 import scala.Tuple2;
 
 public class GraphBuilder extends AbstractFlightAnalyser<List<List<Long>>>{
@@ -30,9 +30,11 @@ public class GraphBuilder extends AbstractFlightAnalyser<List<List<Long>>>{
 
 		// This method starts of by calculating
 		// all the distances between every airport
-		return null;
-//		JavaPairRDD<Tuple2<String, String>, Double> allFlightDistances =
-//				flights.mapToPair(f -> new Tuple2<>(new Tuple2<>(f.origin, f.dest), f.arrtime - f.deptime));
+		JavaPairRDD<Tuple2<String, String>, Double> allFlightDistances =
+				flights.mapToPair(f -> new Tuple2<>(new Tuple2<>(f.origin, f.dest), f.arrtime - f.deptime));
+		
+		for (Tuple2<Tuple2<String, String>, Double> f : allFlightDistances.take(20))
+			System.out.println(f._1._1 + " " + f._1._2 + " " + f._2);
 
 //		// Then calculates the average of every key
 //		// using the aggregateByKey method
@@ -44,6 +46,7 @@ public class GraphBuilder extends AbstractFlightAnalyser<List<List<Long>>>{
 //		JavaPairRDD<Tuple2<String, String>, Double> reverseCombinations =
 //				allFlightsAvg.mapToPair(f -> new Tuple2<>(new Tuple2<>(f._1._2, f._1._1), f._2));
 //		return allFlightsAvg.union(reverseCombinations);
+		return null;
 	}
 	
 	@Override
@@ -70,6 +73,9 @@ public class GraphBuilder extends AbstractFlightAnalyser<List<List<Long>>>{
 					double dist = f._1._1.equals(f._1._2) ? 0 : Double.MAX_VALUE;
 					return new Tuple2<>(f._1, dist);
 				});
+		
+//		for (Tuple2<Tuple2<Long,Long>, Double> f : noDirectPathMaxDist.collect())
+//			System.out.println(f._1._1 + " " + f._1._2 + " " + f._2);
 
 		// Transform the result distances
 		// into a distributed matrix
