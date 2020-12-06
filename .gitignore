@@ -13,3 +13,5 @@ gradlew.bat
 *.log
 
 .idea/
+
+*.csv#
