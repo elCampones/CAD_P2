@@ -7,9 +7,12 @@ build
 gradle
 gradlew
 gradlew.bat
+out
 
 #Default stuff
 *.class
 *.log
 
 .idea/
+
+*.csv#
