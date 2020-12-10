@@ -14,7 +14,12 @@ public class AverageFlightDuration  extends AbstractFlightAnalyser<Map<Tuple2<St
         super(flights);
     }
 
-    public static JavaPairRDD<Tuple2<String, String>, Double> getAverageDistances (JavaRDD<Flight> flights) {
+	/**
+	 * 
+	 * @param flights
+	 * @return
+	 */
+	public static JavaPairRDD<Tuple2<String, String>, Double> getAverageDistances (JavaRDD<Flight> flights) {
         JavaPairRDD<Tuple2<String, String>, Double> temp =  flights.mapToPair(
                 flight -> new Tuple2<>(new Tuple2<>(flight.origin, flight.dest), new Tuple2<>(flight.arrtime - flight.deptime, 1L))
         ).reduceByKey(
@@ -29,7 +34,12 @@ public class AverageFlightDuration  extends AbstractFlightAnalyser<Map<Tuple2<St
         return temp.union(reverseCombinations);
     }
 
-    public static JavaPairRDD<Tuple2<Long, Long>, Double> getAverageDistancesById (JavaRDD<Flight> flights) {
+	/**
+	 *
+	 * @param flights
+	 * @return
+	 */
+	public static JavaPairRDD<Tuple2<Long, Long>, Double> getAverageDistancesById (JavaRDD<Flight> flights) {
     	JavaPairRDD<Tuple2<Long, Long>, Tuple2<Integer, Integer>> intTimes =
     			flights.mapToPair(
     					f -> new Tuple2<>(
@@ -40,9 +50,6 @@ public class AverageFlightDuration  extends AbstractFlightAnalyser<Map<Tuple2<St
     			intTimes.mapToPair(f -> new Tuple2<>(f._1, new Tuple2<>(
     					60 * (f._2._1 / 100) + f._2._1 % 100, 
     					60 * (f._2._2 / 100) + f._2._2 % 100)));
-    	
-//    	for (Tuple2<Tuple2<Long, Long>, Tuple2<Integer, Integer>> f : convertedTimes.take(200))
-//    		System.out.printf("%d %d %d %d\n", f._1._1, f._1._2, f._2._1, f._2._2);
     	
     	JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Long>> recordedFlights =
     			convertedTimes.mapToPair(f -> {
@@ -56,16 +63,10 @@ public class AverageFlightDuration  extends AbstractFlightAnalyser<Map<Tuple2<St
     					recordedFlights.mapToPair(
     							f -> new Tuple2<>(
     									new Tuple2<>(f._1._2, f._1._1), f._2)));
-    	
-        JavaPairRDD<Tuple2<Long, Long>, Double> averageFlightDistances =  
-        		allDistanceSamples.reduceByKey((v1, v2) -> 
-        		new Tuple2<>(v1._1 + v2._1, v1._2 + v2._2))
-        		.mapValues(v1 -> v1._1 / v1._2);
 
-//        for (Tuple2<Tuple2<Long, Long>, Double> f : reverseCombinations.take(100))
-//        	System.out.println(f._1._1 + " " + f._1._2 + " " + f._2);
-
-        return averageFlightDistances;
+        return allDistanceSamples.reduceByKey((v1, v2) ->
+		new Tuple2<>(v1._1 + v2._1, v1._2 + v2._2))
+		.mapValues(v1 -> v1._1 / v1._2);
     }
 
     // Method that aggregates every
@@ -74,8 +75,6 @@ public class AverageFlightDuration  extends AbstractFlightAnalyser<Map<Tuple2<St
     // value
     @Override
     public Map<Tuple2<String, String>, Double> run() {
-        // TODO : Not sure if this is realy
-        //  efficient
         return getAverageDistances(flights).collectAsMap();
     }
 }

@@ -8,7 +8,7 @@ public class AdjacencyMatrixTest extends AbstractTest<List<List<Long>>>{
 
 	@Override
 	protected List<List<Long>> run(JavaRDD<Flight> flights) {
-		return new GraphBuilder(flights).run();
+		return new FlightSolver(flights).run();
 	}
 
 	@Override
