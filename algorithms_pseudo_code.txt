@@ -59,6 +59,7 @@ Johnson (Node origin, Node[] nodes) {
 				if (modified.dist >= shortestPath[modified.node]) continue
 				shortestPath[modified.node] = modified.dist
 				from[modified.node] = process.node
+				priorityQ.add(modified.dist, modified.node)
 			}
 	}
 	

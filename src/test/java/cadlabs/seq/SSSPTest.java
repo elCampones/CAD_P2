@@ -1,5 +1,6 @@
 package cadlabs.seq;
 
+import cadlabs.par.ParSSSP;
 import cadlabs.rdd.AbstractTest;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -13,7 +14,8 @@ public class SSSPTest extends AbstractTest<Path> {
 	protected Path run(JavaRDD<Flight> flights) {
 
 		long time = System.currentTimeMillis();
-		Path route = new SSSP("TPA", "PSG", flights).run();
+//		Path route = new SSSP("TPA", "PSG", flights).run();
+		Path route = new ParSSSP("TPA", "PSG", flights).run();
 		long elapsed =  System.currentTimeMillis() - time;
 		System.out.println("Route " + route + "\nComputed in " + elapsed + " ms.");
 		return route;

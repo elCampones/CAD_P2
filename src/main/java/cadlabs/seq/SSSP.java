@@ -143,10 +143,9 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
      * @return The edge (of type MatrixEntry), if it exists, null otherwise
      */
     private MatrixEntry getEdge(int origin, int dest) {
-        for (MatrixEntry e : this.graph) {
+        for (MatrixEntry e : this.graph)
             if (e.i() == origin && e.j() == dest)
                 return e;
-        }
         return null;
     }
 
