@@ -13,17 +13,31 @@ public class Path {
      */
     private final List<String> path = new ArrayList<>();
 
+    public final double distance;
+
     /**
      * Constructor given the source and destination node ids and the list of predecessors
      * @param source
      * @param destination
      * @param predecessor
      */
-    public Path(long source, long destination, int[] predecessor) {
+    public Path(long source, long destination, int[] predecessor, double[] distances) {
         for (int v =  (int) destination; v != source; v = predecessor[v])
             this.path.add(0, Flight.getAirportNameFromId(v));
 
         this.path.add(0, Flight.getAirportNameFromId((int) source));
+        distance = computeDistance(source, destination, distances, predecessor);
+    }
+
+    private double computeDistance(long source, long destination, double[] distances, int[] predecessor) {
+        int current = (int)destination;
+        double accum = 0;
+        while (current != source) {
+            accum += distances[current];
+            current = predecessor[current];
+        }
+
+        return accum;
     }
 
     /**

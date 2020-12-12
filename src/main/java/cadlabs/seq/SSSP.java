@@ -37,26 +37,33 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
     /**
      * The name of the source node (airport)
      */
-    private final String sourceName;
+    private final int sourceName;
 
     /**
      * The name of the destination node (airport)
      */
-    private final String destinationName;
+    private final int destinationName;
 
 
-    public SSSP(String source, String destination, JavaRDD<Flight> flights) {
+    public SSSP(int source, int destination, JavaRDD<Flight> flights) {
         super(flights);
         this.sourceName = source;
         this.destinationName = destination;
         this.graph = buildGraph();
+        /*System.out.println("TPA -> ORD = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ORD")));
+        System.out.println("ORD -> GRB = " + getWeight(Flight.getAirportIdFromName("ORD"), Flight.getAirportIdFromName("GRB")));
+        System.out.println("TPA -> ATL = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ATL")));
+        System.out.println("ATL -> GRB = " + getWeight(Flight.getAirportIdFromName("ATL"), Flight.getAirportIdFromName("GRB")));
+        */
     }
 
     @Override
     public Path run() {
         // identifiers of the source and destination nodes
-        int source = Flight.getAirportIdFromName(sourceName);
-        int destination = Flight.getAirportIdFromName(destinationName);
+        //int source = Flight.getAirportIdFromName(sourceName);
+        //int destination = Flight.getAirportIdFromName(destinationName);
+        int source = sourceName;
+        int destination = destinationName;
         int nAirports = (int) Flight.getNumberAirports();
 
         // The set of nodes to visit
@@ -101,7 +108,7 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
             }
         }
 
-        return new Path(source, destination, predecessor);
+        return new Path(source, destination, predecessor, l);
     }
 
     /**

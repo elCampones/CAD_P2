@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 
 public class ParSSSP extends AbstractFlightAnalyser<Path> {
 
-	private final String srcName, destName;
+	private final int srcName, destName;
 
 	//	private final IndexedRowMatrix graph;
 	private final JavaRDD<IndexedRow> graph;
 
-	public ParSSSP(String srcName, String destName, JavaRDD<Flight> flights) {
+	public ParSSSP(int srcName, int destName, JavaRDD<Flight> flights) {
 		super(flights);
 		this.srcName = srcName;
 		this.destName = destName;
@@ -33,8 +33,9 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 	@Override
 	public Path run() {
 		graph.cache();
-		int source = Flight.getAirportIdFromName(srcName);
-		int destination = Flight.getAirportIdFromName(destName);
+		/*int source = Flight.getAirportIdFromName(srcName);
+		int destination = Flight.getAirportIdFromName(destName);*/
+		int source = srcName, destination = destName;
 		int nAirports = (int) Flight.getNumberAirports();
 
 		double[] shortestPath = new double[nAirports];
@@ -63,6 +64,8 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 			Set<Long> roundNodes = toVisit.stream().map(t -> (long)t.node).collect(Collectors.toSet());
 			JavaRDD<IndexedRow> partitionRows =
 					graph.filter(s -> roundNodes.contains(s.index()));
+			
+			List<IndexedRow> list1 = partitionRows.collect();
 
 			JavaPairRDD<Integer/*origin*/, Tuple2<Integer /*dest*/, Double/*newDistance*/>> modified =
 					partitionRows.flatMapToPair(
@@ -70,14 +73,14 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 								SparseVector v = (SparseVector) indexedRow.vector();
 								int[] indices = v.indices();
 								double[] values = v.values();
-								List<Tuple2<Integer, Tuple2<Integer, Double>>> l = new ArrayList<>(v.size());
-								for (int i = 0; i < v.size(); i++) {
-									l.add(new Tuple2<>((int) indexedRow.index(), new Tuple2<>(indices[i], values[i] + shortestPath[indices[i]])));
+								List<Tuple2<Integer, Tuple2<Integer, Double>>> l = new ArrayList<>(indices.length);
+								for (int i = 0; i < indices.length; i++) {
+									l.add(new Tuple2<>((int) indexedRow.index(), new Tuple2<>(indices[i], values[i] + shortestPath[(int)indexedRow.index()])));
 								}
 								return l.iterator();
 							}
-					).filter(v -> (v._2._2 < shortestPath[v._2._1])).
-							filter(v -> !confirmed[v._2._1]);
+					).filter(v -> (v._2._2 < shortestPath[v._2._1]))
+					. filter(v -> !confirmed[v._2._1]);
 
 			List<Tuple2<Integer, Tuple2<Integer, Double>>> modifiedManifest = modified.collect();
 			modifiedManifest.forEach(m -> {
@@ -90,7 +93,7 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 
 		} while (!confirmed[destination]);
 
-		return new Path(source, destination, from);
+		return new Path(source, destination, from, shortestPath);
 	}
 
 }

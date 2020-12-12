@@ -45,7 +45,7 @@ public abstract class AbstractBaseTest<Input, Result> {
 	/**
 	 * The result the test should produce.
 	 * If the method returns null, the output of the test is not tested.
-	 * @return
+	 * @retzurn
 	 */
 	protected abstract String expectedResult();
 

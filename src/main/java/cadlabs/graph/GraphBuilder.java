@@ -33,6 +33,6 @@ public class GraphBuilder {
                 flightAverageDuration.map(
                         flight ->new MatrixEntry(flight._1._2, flight._1._1, flight._2));
 	
-        return new CoordinateMatrix(entries.rdd()).transpose().toIndexedRowMatrix();
+        return new CoordinateMatrix(entries.rdd()).toIndexedRowMatrix();
 	}  
 }
