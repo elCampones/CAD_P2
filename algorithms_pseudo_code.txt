@@ -1,0 +1,66 @@
+Dijkstra(Node origin, Node[] nodes) {
+	shortestPath[nodes.len]
+	from[nodes.len]
+	shortestPath[origin] = 0
+	from[origin] = origin
+	shortestPath[not origin] = infinite
+	from[not origin] = null
+	leftToFind = {n in nodes}
+	priorityQ<int, Node>
+	priorityQ.add(0, origin)
+	while(!leftToFind.isEmpty) {
+		Node n = priorityQ.get()
+		leftToFind.remove(n)
+		for (edge : n.out) {
+			Node dest = edge.dest
+			if (!leftToFind.contains(dest)) continue
+			int newDistance = shortestPath[node] + edge.len
+			if (newDistance >= shortestPath[dest]) continue
+			shortestPath[dest] = newDistance
+			from[dest] = node
+			priorityQ.add(newDistance, dest)
+		}
+	}
+	
+	return <shortestPath, from>;
+}
+
+Johnson (Node origin, Node[] nodes) {
+	shortestPath[nodes.len]
+	from[nodes.len]
+	shortestPath[origin] = 0
+	from[origin] = origin
+	shortestPath[not origin] = infinite
+	from[not origin] = null
+	leftToFind = {n in nodes}
+	priotityQ<int, Node>
+	priorityQ.add(0, origin)
+	while (!leftToFind.isEmpty()) {
+		leftToFind.remove(priorityQ.getWithoutRemoving())
+		parallel_processes = {}
+		while(!priorityQ.isEmpty())
+			parallel_processes.add(priorityQ.get())
+		parallel for (process : parallel_processes) {
+			process.modifiedShortestPath<int, Node> = {}
+			Node node = process.node
+			for (edge : node.out) {
+				Node dest = edge.dest
+				if (!leftToFind.contains(dest)) continue
+				int newDistance = localShortestPath[node] + edge.len
+				if (newDistance >= localShortestPath[dest]) continue
+				process.modifiedShortestPath.add(newDistance, dest) 
+			}
+		}
+
+		--barrier--
+
+		for (process : parallel_processes)
+			for(modified : process.modifiedShortestPath) {
+				if (modified.dist >= shortestPath[modified.node]) continue
+				shortestPath[modified.node] = modified.dist
+				from[modified.node] = process.node
+			}
+	}
+	
+	return <shortestPath, from>
+}
