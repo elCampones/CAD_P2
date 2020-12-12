@@ -48,37 +48,45 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 		shortestPath[source] = 0;
 //        from[source] = source;
 
-		Queue<Tuple2<Integer, Integer>> toVisit = new PriorityQueue<>(nAirports);
-		toVisit.add(new Tuple2<>(0, source));
+		Queue<Pair> toVisit = new PriorityQueue<>(nAirports);
+		toVisit.add(new Pair(0, source));
 		do {
-
-			Integer found = toVisit.peek()._2;
+			int found = toVisit.peek().node;
 			if (confirmed[found]) {
 				toVisit.remove();
 				continue;
 			}
+
 			confirmed[found] = true;
+			if (found == destination) break;
 
-			Set<Long> roundNodes = toVisit.stream().map(t -> Long.valueOf(t._2)).collect(Collectors.toSet());
+			Set<Long> roundNodes = toVisit.stream().map(t -> (long)t.node).collect(Collectors.toSet());
 			JavaRDD<IndexedRow> partitionRows =
-					graph
-							.filter(s -> roundNodes.contains(s.index()));
-
+					graph.filter(s -> roundNodes.contains(s.index()));
 
 			JavaPairRDD<Integer/*origin*/, Tuple2<Integer /*dest*/, Double/*newDistance*/>> modified =
 					partitionRows.flatMapToPair(
 							indexedRow -> {
-								List<Tuple2<Integer, Tuple2<Integer, Double>>> l = new LinkedList<>();
 								SparseVector v = (SparseVector) indexedRow.vector();
 								int[] indices = v.indices();
 								double[] values = v.values();
+								List<Tuple2<Integer, Tuple2<Integer, Double>>> l = new ArrayList<>(v.size());
 								for (int i = 0; i < v.size(); i++) {
 									l.add(new Tuple2<>((int) indexedRow.index(), new Tuple2<>(indices[i], values[i] + shortestPath[indices[i]])));
 								}
 								return l.iterator();
 							}
-					).filter(v1 -> (v1._2._2 < shortestPath[v1._2._1]));
+					).filter(v -> (v._2._2 < shortestPath[v._2._1])).
+							filter(v -> !confirmed[v._2._1]);
 
+			List<Tuple2<Integer, Tuple2<Integer, Double>>> modifiedManifest = modified.collect();
+			modifiedManifest.forEach(m -> {
+				if(m._2._2 < shortestPath[m._2._1]) {
+					shortestPath[m._2._1] = m._2._2;
+					from[m._2._1] = m._1;
+					toVisit.add(new Pair(m._2._2, m._2._1));
+				}
+			});
 
 		} while (!confirmed[destination]);
 
