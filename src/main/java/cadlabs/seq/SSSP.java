@@ -3,7 +3,6 @@ package cadlabs.seq;
 
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
-
 import cadlabs.rdd.Path;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -50,11 +49,11 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
         this.sourceName = source;
         this.destinationName = destination;
         this.graph = buildGraph();
-        /*System.out.println("TPA -> ORD = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ORD")));
+        System.out.println("TPA -> ORD = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ORD")));
         System.out.println("ORD -> GRB = " + getWeight(Flight.getAirportIdFromName("ORD"), Flight.getAirportIdFromName("GRB")));
         System.out.println("TPA -> ATL = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ATL")));
         System.out.println("ATL -> GRB = " + getWeight(Flight.getAirportIdFromName("ATL"), Flight.getAirportIdFromName("GRB")));
-        */
+
     }
 
     @Override
@@ -113,6 +112,7 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
 
     /**
      * Build the graph using Spark for convenience
+     *
      * @return The graph
      */
     private List<MatrixEntry> buildGraph() {
@@ -138,7 +138,7 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
 
         JavaRDD<MatrixEntry> entries =
                 flightAverageDuration.map(
-                        flight ->new MatrixEntry(flight._1._2, flight._1._1, flight._2));
+                        flight -> new MatrixEntry(flight._1._2, flight._1._1, flight._2));
 
         return entries.collect();
     }

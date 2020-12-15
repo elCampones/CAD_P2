@@ -1,23 +1,22 @@
 package cadlabs.graph;
 
+import cadlabs.rdd.Flight;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
-
-import cadlabs.rdd.Flight;
 import scala.Tuple2;
 
 public class GraphBuilder {
-	
-	public static IndexedRowMatrix buildGraph(JavaRDD<Flight> flights) {
+
+    public static IndexedRowMatrix buildGraph(JavaRDD<Flight> flights) {
 
         JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux1 =
                 flights.mapToPair(flight ->
-                	new Tuple2<>(new Tuple2<>(flight.origInternalId, flight.destInternalId),
-                				new Tuple2<>(flight.arrtime - flight.deptime < 0 ?
-                						flight.arrtime - flight.deptime + 2400 :
+                        new Tuple2<>(new Tuple2<>(flight.origInternalId, flight.destInternalId),
+                                new Tuple2<>(flight.arrtime - flight.deptime < 0 ?
+                                        flight.arrtime - flight.deptime + 2400 :
                                         flight.arrtime - flight.deptime, 1)));
 
         JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux2 =
@@ -31,8 +30,8 @@ public class GraphBuilder {
 
         JavaRDD<MatrixEntry> entries =
                 flightAverageDuration.map(
-                        flight ->new MatrixEntry(flight._1._2, flight._1._1, flight._2));
-	
+                        flight -> new MatrixEntry(flight._1._2, flight._1._1, flight._2));
+
         return new CoordinateMatrix(entries.rdd()).toIndexedRowMatrix();
-	}  
+    }
 }

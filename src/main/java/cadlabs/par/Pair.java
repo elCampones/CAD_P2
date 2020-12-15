@@ -1,6 +1,6 @@
 package cadlabs.par;
 
-public class Pair implements Comparable<Pair>{
+public class Pair implements Comparable<Pair> {
 
     public final double dist;
     public final int node;
@@ -12,6 +12,6 @@ public class Pair implements Comparable<Pair>{
 
     @Override
     public int compareTo(Pair o) {
-        return (int)(this.dist - o.dist);
+        return (int) (this.dist - o.dist);
     }
 }

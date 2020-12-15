@@ -18,3 +18,5 @@ out
 *.csv#
 
 *.iml
+
+src/main/java/META-INF/MANIFEST.MF

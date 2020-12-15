@@ -8,42 +8,42 @@ import org.apache.spark.sql.SparkSession;
 
 public class FlightAnalyser {
 
-	private static final String DefaulftFile = "data/flights.csv";
+    private static final String DefaulftFile = "data/flights.csv";
 
 
-	public static void main(String[] args) {
-		
-		String file = (args.length < 1) ? DefaulftFile : args[0];
-		
-		// start Spark session (SparkContext API may also be used) 
-		// master("local") indicates local execution
-		SparkSession spark = SparkSession.builder().
-				appName("FlightAnalyser").
-				master("local[*]").
-				getOrCreate();
-		
-		// only error messages are logged from this point onward
-		// comment (or change configuration) if you want the entire log
-		spark.sparkContext().setLogLevel("ERROR");
+    public static void main(String[] args) {
 
-		
-		Dataset<String> textFile = spark.read().textFile(file).as(Encoders.STRING());	
-		Dataset<Row> flights = 
-				textFile.map((MapFunction<String, Row>) l -> Flight.parseFlight(l), 
-				Flight.encoder()).cache();
+        String file = (args.length < 1) ? DefaulftFile : args[0];
 
-		/*
-		 * 
-		 */
-		Dataset<Row> flightsPerRoute ;
-		
-		
-		for (Row r : flights.takeAsList(20))
-			System.out.println(r);
-		
-		
-		// terminate the session
-		spark.stop();
-	}
+        // start Spark session (SparkContext API may also be used)
+        // master("local") indicates local execution
+        SparkSession spark = SparkSession.builder().
+                appName("FlightAnalyser").
+                master("local[*]").
+                getOrCreate();
+
+        // only error messages are logged from this point onward
+        // comment (or change configuration) if you want the entire log
+        spark.sparkContext().setLogLevel("ERROR");
+
+
+        Dataset<String> textFile = spark.read().textFile(file).as(Encoders.STRING());
+        Dataset<Row> flights =
+                textFile.map((MapFunction<String, Row>) l -> Flight.parseFlight(l),
+                        Flight.encoder()).cache();
+
+        /*
+         *
+         */
+        Dataset<Row> flightsPerRoute;
+
+
+        for (Row r : flights.takeAsList(20))
+            System.out.println(r);
+
+
+        // terminate the session
+        spark.stop();
+    }
 
 }
