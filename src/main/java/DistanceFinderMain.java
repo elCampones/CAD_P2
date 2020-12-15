@@ -10,7 +10,7 @@ public class DistanceFinderMain {
         if (args.length < 2) {
             System.out.println("Usage: java DistanceFinderMain Origin Destiny [FlightsFile]\n "
             		+ "Origin and Destiny: names of airports\n"
-            		+ "FlightsFile: Pathname of the file containing the flights data\s");
+            		+ "FlightsFile: Pathname of the file containing the flights data\n");
             System.exit(0);
         }
         String originStr = args[0], destStr = args[1];
