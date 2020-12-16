@@ -162,6 +162,11 @@ public class Flight {
     }
 
     public static int getAirportIdFromName(String name) {
+        // TODO Remove this
+        System.out.println(name);
+        System.out.println(airportsByName.get(name));
+        System.out.println();
+        // TODO : Remove this
         return airportsByName.get(name);
     }
 }

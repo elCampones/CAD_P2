@@ -1,3 +1,4 @@
+import cadlabs.par.FlightInformer;
 import cadlabs.par.ParSSSP;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -15,27 +16,41 @@ public class DistanceFinderMain {
         }
         String originStr = args[0], destStr = args[1];
 
-        // start Spark session (SparkContext API may also be used)
-        // master("local") indicates local execution
+// start Spark session (SparkContext API may also be used)
+// master("local") indicates local execution
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
-                master("local").
+//                 master("local").
+                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
 
-        // only error messages are logged from this point onward
-        // comment (or change configuration) if you want the entire log
+// only error messages are logged from this point onward
+// comment (or change configuration) if you want the entire log
         spark.sparkContext().setLogLevel("ERROR");
 
         String file = args.length > 3 ? args[2] : "data/flights.csv";
-
         JavaRDD<Flight> flights = processInputFile(file, spark);
+
+        FlightInformer.informer.setInformer(flights);
+
+// TODO : Remove this
+        System.out.print("\n:'((((((((((((((((((\n");
+//        List<Flight> temp = flights.collect();
+//        int i = 10;
+//        for(Flight f : temp) {
+//            i--; if (i <= 0) break;
+//            System.out.println(f.dest);
+//        }
+        System.out.println(flights.count());
+// TODO : Remove this
+// int dest_id = flights.filter(v1 -> v1.dest.equals(destStr)).collect();
 
         long start = System.currentTimeMillis();
         Path path = new ParSSSP(originStr, destStr, flights).run();
         long elapsed = System.currentTimeMillis() - start;
-        System.out.printf("Path from %s to %s: %s\n"
-        		+ "Computed in %d milliseconds"
+        System.out.printf("\nPath from %s to %s: %s\n"
+        		+ "Computed in %d milliseconds\n\n"
                 , originStr, destStr, path, elapsed);
     }
 
