@@ -68,7 +68,8 @@ public class DistanceFinderMain {
 
     public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in) {
         this.flights = fligths;
-        Flight.generateIds(flights.collect());
+//        Flight.generateIds(flights.collect());
+        flights.collect();
         FlightInformer.informer.setInformer(flights);
         graph = new GraphBuilder(fligths);
         this.in = in;
@@ -81,8 +82,8 @@ public class DistanceFinderMain {
         // master("local") indicates local execution
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
-                master("local").
-//                master("spark://172.30.10.116:7077").
+//                master("local").
+                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
         // only error messages are logged from this point onward

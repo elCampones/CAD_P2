@@ -1,10 +1,12 @@
 package cadlabs.rdd;
 
+import scala.Serializable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Flight {
+public class Flight implements Serializable {
 
     /**
      * Map of airport identifier into internal identifier
@@ -119,8 +121,8 @@ public class Flight {
         this.crselapsedtime = crselapsedtime;
         this.dist = dist;
 
-        //this.origInternalId = internalId(this.org_id, this.origin);
-        //this.destInternalId = internalId(this.dest_id, this.dest);
+        this.origInternalId = internalId(this.org_id, this.origin);
+        this.destInternalId = internalId(this.dest_id, this.dest);
 
     }
 
