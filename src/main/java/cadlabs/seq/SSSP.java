@@ -1,6 +1,7 @@
 package cadlabs.seq;
 
 
+import cadlabs.graph.GraphBuilder;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -36,33 +37,26 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
     /**
      * The name of the source node (airport)
      */
-    private final int sourceName;
+    private final String sourceName;
 
     /**
      * The name of the destination node (airport)
      */
-    private final int destinationName;
+    private final String destinationName;
 
 
-    public SSSP(int source, int destination, JavaRDD<Flight> flights) {
+    public SSSP(String source, String destination, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
         super(flights);
         this.sourceName = source;
         this.destinationName = destination;
-        this.graph = buildGraph();
-        System.out.println("TPA -> ORD = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ORD")));
-        System.out.println("ORD -> GRB = " + getWeight(Flight.getAirportIdFromName("ORD"), Flight.getAirportIdFromName("GRB")));
-        System.out.println("TPA -> ATL = " + getWeight(Flight.getAirportIdFromName("TPA"), Flight.getAirportIdFromName("ATL")));
-        System.out.println("ATL -> GRB = " + getWeight(Flight.getAirportIdFromName("ATL"), Flight.getAirportIdFromName("GRB")));
-
+        this.graph = graphBuilder.getMaterializedGraph();
     }
 
     @Override
     public Path run() {
         // identifiers of the source and destination nodes
-        //int source = Flight.getAirportIdFromName(sourceName);
-        //int destination = Flight.getAirportIdFromName(destinationName);
-        int source = sourceName;
-        int destination = destinationName;
+        int source = Flight.getAirportIdFromName(sourceName);
+        int destination = Flight.getAirportIdFromName(destinationName);
         int nAirports = (int) Flight.getNumberAirports();
 
         // The set of nodes to visit
@@ -108,39 +102,6 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
         }
 
         return new Path(source, destination, predecessor, l);
-    }
-
-    /**
-     * Build the graph using Spark for convenience
-     *
-     * @return The graph
-     */
-    private List<MatrixEntry> buildGraph() {
-
-        JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux1 =
-                this.flights.
-                        mapToPair(
-                                flight ->
-                                        new Tuple2<>(
-                                                new Tuple2<>(flight.origInternalId, flight.destInternalId),
-                                                new Tuple2<>(flight.arrtime - flight.deptime < 0 ?
-                                                        flight.arrtime - flight.deptime + 2400 :
-                                                        flight.arrtime - flight.deptime, 1)));
-
-        JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux2 =
-                aux1.reduceByKey((duration1, duration2) ->
-                        new Tuple2<>(duration1._1 + duration2._1,
-                                duration1._2 + duration2._2));
-
-        JavaPairRDD<Tuple2<Long, Long>, Double> flightAverageDuration =
-                aux2.mapToPair(flightDuration ->
-                        new Tuple2<>(flightDuration._1, flightDuration._2._1 / flightDuration._2._2));
-
-        JavaRDD<MatrixEntry> entries =
-                flightAverageDuration.map(
-                        flight -> new MatrixEntry(flight._1._2, flight._1._1, flight._2));
-
-        return entries.collect();
     }
 
 

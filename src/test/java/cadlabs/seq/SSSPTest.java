@@ -26,15 +26,15 @@ public class SSSPTest extends AbstractTest<Path> {
 				System.out.println(route2);
 			}
 		}*/
-        Path route = new ParSSSP("SAN", "PSG", flights).run();
+        //Path route = new ParSSSP("SAN", "PSG", flights).run();
         long elapsed = System.currentTimeMillis() - time;
 		/*int TPA = Flight.getAirportIdFromName("TPA");
 		int ORD = Flight.getAirportIdFromName("ORD");
 		int ATL = Flight.getAirportIdFromName("ATL");
 		int GRB = Flight.getAirportIdFromName("GRB");
 		System.out.println("Airports: TPA=" + TPA + " ORD=" + ORD + " ATL=" + ATL + " GRB=" + GRB);*/
-        System.out.println("Route " + route + "\n Of length " + route.distance + "\nComputed in " + elapsed + " ms.");
-        return route;
+        //System.out.println("Route " + route + "\n Of length " + route.distance + "\nComputed in " + elapsed + " ms.");
+        return null;
     }
 
     @Override

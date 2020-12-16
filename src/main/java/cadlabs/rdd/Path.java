@@ -8,6 +8,10 @@ import java.util.List;
  */
 public class Path {
 
+    public final String src;
+
+    public final String dest;
+
     public final double distance;
     /**
      * The list representation of the path
@@ -22,6 +26,8 @@ public class Path {
      * @param predecessor
      */
     public Path(long source, long destination, int[] predecessor, double[] distances) {
+        this.src = Flight.getAirportNameFromId((int) source);
+        this.dest = Flight.getAirportNameFromId((int) destination);
         for (int v = (int) destination; v != source; v = predecessor[v])
             this.path.add(0, Flight.getAirportNameFromId(v));
 
@@ -51,11 +57,11 @@ public class Path {
 
     @Override
     public String toString() {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         int last = this.path.size() - 1;
 
         for (int i = 0; i < last; i++)
-            result += this.path.get(i) + " -> ";
+            result.append(this.path.get(i)).append(" -> ");
 
         return result + this.path.get(last);
     }

@@ -19,11 +19,11 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 
     private final JavaRDD<IndexedRow> graph;
 
-    public ParSSSP(String srcName, String destName, JavaRDD<Flight> flights) {
+    public ParSSSP(String srcName, String destName, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
         super(flights);
         this.srcName = srcName;
         this.destName = destName;
-        graph = GraphBuilder.buildGraph(flights).rows().toJavaRDD();
+        this.graph = graphBuilder.getSparkGraph();
     }
 
     @Override
@@ -78,10 +78,7 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
                     toVisit.add(new Pair(m._2._2, m._1));
                 }
             });
-
         }
-
-
         return new Path(source, destination, from, Arrays.stream(shortestPath).mapToDouble(d -> d).toArray());
     }
 
