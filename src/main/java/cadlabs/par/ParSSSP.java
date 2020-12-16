@@ -52,7 +52,8 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
         Queue<Pair> toVisit = new PriorityQueue<>(nAirports);
         toVisit.add(new Pair(0, source));
         int found;
-        while ((found = toVisit.peek().node) != destination){
+        int iterations = 0;
+        while (!toVisit.isEmpty() && (found = toVisit.peek().node) != destination){
 
             if (confirmed[found]) {
                 toVisit.remove();
@@ -62,6 +63,9 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
             Set<Long> frontierNodes = toVisit.stream().map(t -> (long) t.node)
                     .filter(n -> !confirmed[Math.toIntExact(n)])                //TODO This might not be necessary. Confirmed nodes won't be reintroduced to the priority queue (I think)
                     .collect(Collectors.toSet());
+
+            toVisit.clear();
+
             JavaRDD<IndexedRow> partitionRows =
                     graph.filter(s -> frontierNodes.contains(s.index()));
             confirmed[found] = true;
@@ -97,7 +101,6 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
                     toVisit.add(new Pair(m._2._2, m._1));
                 }
             });
-
         }
 
         return new Path(source, destination, from, Arrays.stream(shortestPath).mapToDouble(d -> d).toArray());
