@@ -29,9 +29,10 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
     @Override
     public Path run() {
         graph.cache();
-        int source = Flight.getAirportIdFromName(srcName);
-        int destination = Flight.getAirportIdFromName(destName);
-        int nAirports = (int) Flight.getNumberAirports();
+        int source = FlightInformer.informer.mapIdByAirport.get(srcName); //1; // Flight.getAirportIdFromName(srcName);
+        int destination = FlightInformer.informer.mapIdByAirport.get(destName); //45; // Flight.getAirportIdFromName(destName);
+        //int source = srcName, destination = destName;
+        int nAirports = (int) FlightInformer.informer.numberOfAirports;//Flight.getNumberAirports();
 
         Double[] shortestPath = new Double[nAirports];
         int[] from = new int[nAirports];

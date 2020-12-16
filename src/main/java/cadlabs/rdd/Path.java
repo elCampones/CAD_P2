@@ -1,5 +1,7 @@
 package cadlabs.rdd;
 
+import cadlabs.par.FlightInformer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +28,12 @@ public class Path {
      * @param predecessor
      */
     public Path(long source, long destination, int[] predecessor, double[] distances) {
-        this.src = Flight.getAirportNameFromId((int) source);
-        this.dest = Flight.getAirportNameFromId((int) destination);
+        this.src = FlightInformer.informer.mapAirportById.get((int) source);
+        this.dest = FlightInformer.informer.mapAirportById.get((int) destination);
         for (int v = (int) destination; v != source; v = predecessor[v])
-            this.path.add(0, Flight.getAirportNameFromId(v));
+            this.path.add(0, FlightInformer.informer.mapAirportById.get(v));
 
-        this.path.add(0, Flight.getAirportNameFromId((int) source));
+        this.path.add(0, FlightInformer.informer.mapAirportById.get((int) source));
         distance = computeDistance(source, destination, distances, predecessor);
     }
 

@@ -1,4 +1,5 @@
 import cadlabs.graph.GraphBuilder;
+import cadlabs.par.FlightInformer;
 import cadlabs.par.ParSSSP;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
@@ -67,6 +68,8 @@ public class DistanceFinderMain {
 
     public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in) {
         this.flights = fligths;
+//        fligths.collect();
+        FlightInformer.informer.setInformer(flights);
         graph = new GraphBuilder(fligths);
         this.in = in;
         interpretCommands();
@@ -79,6 +82,7 @@ public class DistanceFinderMain {
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
                 master("local").
+//                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
         // only error messages are logged from this point onward

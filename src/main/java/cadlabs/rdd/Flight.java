@@ -162,6 +162,8 @@ public class Flight {
     }
 
     public static int getAirportIdFromName(String name) {
+        // TODO Remove this
+        // TODO : Remove this
         return airportsByName.get(name);
     }
 }

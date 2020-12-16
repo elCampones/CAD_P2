@@ -18,10 +18,10 @@ public class GraphBuilder {
 
     private JavaRDD<MatrixEntry> graph;
 
-    private final SparkContext spark;
+//    private final SparkContext spark;
 
-    public GraphBuilder(JavaRDD<Flight> fligths, SparkContext spark) {
-        this.spark = spark;
+    public GraphBuilder(JavaRDD<Flight> fligths) {
+//        this.spark = spark;
         this.graph = buildGraph(fligths);
     }
 

@@ -2,6 +2,7 @@ package cadlabs.seq;
 
 
 import cadlabs.graph.GraphBuilder;
+import cadlabs.par.FlightInformer;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -55,9 +56,9 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
     @Override
     public Path run() {
         // identifiers of the source and destination nodes
-        int source = Flight.getAirportIdFromName(sourceName);
-        int destination = Flight.getAirportIdFromName(destinationName);
-        int nAirports = (int) Flight.getNumberAirports();
+        int source = FlightInformer.informer.mapIdByAirport.get(sourceName);
+        int destination = FlightInformer.informer.mapIdByAirport.get(destinationName);
+        int nAirports = (int) FlightInformer.informer.numberOfAirports;
 
         // The set of nodes to visit
         List<Integer> toVisit = IntStream.range(0, nAirports).boxed().collect(Collectors.toList());
