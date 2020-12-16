@@ -1,5 +1,6 @@
 package cadlabs.seq;
 
+import cadlabs.par.ParSSSP;
 import cadlabs.rdd.AbstractTest;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -25,7 +26,7 @@ public class SSSPTest extends AbstractTest<Path> {
 				System.out.println(route2);
 			}
 		}*/
-        Path route = new SSSP(20, 100, flights).run();
+        Path route = new ParSSSP("SAN", "PSG", flights).run();
         long elapsed = System.currentTimeMillis() - time;
 		/*int TPA = Flight.getAirportIdFromName("TPA");
 		int ORD = Flight.getAirportIdFromName("ORD");
