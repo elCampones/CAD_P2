@@ -68,7 +68,7 @@ public class DistanceFinderMain {
 
     public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in) {
         this.flights = fligths;
-//        fligths.collect();
+        Flight.generateIds(flights.collect());
         FlightInformer.informer.setInformer(flights);
         graph = new GraphBuilder(fligths);
         this.in = in;

@@ -1,5 +1,6 @@
 package cadlabs.rdd;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,11 +90,11 @@ public class Flight {
     /**
      * Identifier in a range [0..numberAirports-1] of the airport of arrival
      */
-    public final long origInternalId;
+    public long origInternalId;
     /**
      * Identifier in a range [0..numberAirports-1] of the airport of destination
      */
-    public final long destInternalId;
+    public long destInternalId;
 
 
     public Flight(String dofM, String dofW, String carrier, String tailnum, int flnum, long org_id, String origin,
@@ -118,9 +119,16 @@ public class Flight {
         this.crselapsedtime = crselapsedtime;
         this.dist = dist;
 
-        this.origInternalId = internalId(this.org_id, this.origin);
-        this.destInternalId = internalId(this.dest_id, this.dest);
+        //this.origInternalId = internalId(this.org_id, this.origin);
+        //this.destInternalId = internalId(this.dest_id, this.dest);
 
+    }
+
+    public static void generateIds(Collection<Flight> flights) {
+        for(Flight f : flights) {
+            f.origInternalId = internalId(f.org_id, f.origin);
+            f.destInternalId = internalId(f.dest_id, f.dest);
+        }
     }
 
     public static Flight parseFlight(String line) {
