@@ -121,13 +121,13 @@ public class Flight implements Serializable {
         this.crselapsedtime = crselapsedtime;
         this.dist = dist;
 
-        this.origInternalId = internalId(this.org_id, this.origin);
-        this.destInternalId = internalId(this.dest_id, this.dest);
+//        this.origInternalId = internalId(this.org_id, this.origin);
+//        this.destInternalId = internalId(this.dest_id, this.dest);
 
     }
 
     public static Collection<Flight> generateIds(Collection<Flight> flights) {
-        for(Flight f : flights) {
+        for (Flight f : flights) {
             f.origInternalId = internalId(f.org_id, f.origin);
             f.destInternalId = internalId(f.dest_id, f.dest);
         }

@@ -59,7 +59,7 @@ public class DistanceFinderMain {
         String file = args.length > 3 ? args[2] : "data/flights.csv";
         JavaRDD<Flight> flights = processInputFile(file, spark);
         try(Scanner in = new Scanner(System.in)) {
-            new DistanceFinderMain(flights, in);
+            new DistanceFinderMain(flights, in, spark);
         }
     }
 
@@ -69,15 +69,15 @@ public class DistanceFinderMain {
 
     private final Scanner in;
 
-    public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in) {
-        this.flights = fligths;
-        fligths.collect();
+    public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in, SparkSession sparkSession) {
 
-//        List<Flight> temp = (List<Flight>)Flight.generateIds(flights.collect());
-//        JavaRDD<Flight> temp2 = spark.parallelize(temp);
-        FlightInformer.informer.setInformer(fligths);
+        JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
+        List<Flight> l = (List<Flight>)Flight.generateIds(fligths.collect());
+        this.flights = sparkContext.parallelize(l);
 
-        graph = new GraphBuilder(fligths);
+        FlightInformer.informer.setInformer(flights);
+        graph = new GraphBuilder(flights);
+
         this.in = in;
         interpretCommands();
     }
@@ -88,8 +88,8 @@ public class DistanceFinderMain {
         // master("local") indicates local execution
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
-                master("local").
-//                master("spark://172.30.10.116:7077").
+//                master("local").
+                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
         // only error messages are logged from this point onward
