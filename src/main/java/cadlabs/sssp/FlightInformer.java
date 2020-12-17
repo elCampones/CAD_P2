@@ -1,4 +1,4 @@
-package cadlabs.par;
+package cadlabs.sssp;
 
 import cadlabs.rdd.Flight;
 import org.apache.spark.api.java.JavaRDD;

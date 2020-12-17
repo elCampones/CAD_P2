@@ -1,15 +1,11 @@
-package cadlabs.seq;
+package cadlabs.sssp;
 
 
-import cadlabs.graph.GraphBuilder;
-import cadlabs.par.FlightInformer;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
-import scala.Tuple2;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +14,7 @@ import java.util.stream.IntStream;
 /**
  * A sequential implementation of Dijkstra Single Source Shortest Path
  */
-public class SSSP extends AbstractFlightAnalyser<Path> {
+public class SeqSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
 
     /**
      * Representation of absence of edge between two nodes
@@ -45,8 +41,11 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
      */
     private final String destinationName;
 
+    public SeqSSSP(JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
+        this(null, null, flights, graphBuilder);
+    }
 
-    public SSSP(String source, String destination, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
+    public SeqSSSP(String source, String destination, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
         super(flights);
         this.sourceName = source;
         this.destinationName = destination;
@@ -58,6 +57,11 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
         // identifiers of the source and destination nodes
         int source = FlightInformer.informer.mapIdByAirport.get(sourceName);
         int destination = FlightInformer.informer.mapIdByAirport.get(destinationName);
+        return run(source, destination);
+    }
+
+    @Override
+    public Path run(int source, int destination) {
         int nAirports = (int) FlightInformer.informer.numberOfAirports;
 
         // The set of nodes to visit

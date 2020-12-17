@@ -1,6 +1,6 @@
 package cadlabs.rdd;
 
-import cadlabs.par.FlightInformer;
+import cadlabs.sssp.FlightInformer;
 
 import java.util.ArrayList;
 import java.util.List;

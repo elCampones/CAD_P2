@@ -1,4 +1,4 @@
-package cadlabs.par;
+package cadlabs.sssp;
 
 public class Pair implements Comparable<Pair> {
 

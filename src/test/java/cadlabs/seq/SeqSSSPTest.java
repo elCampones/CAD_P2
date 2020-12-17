@@ -1,13 +1,12 @@
 package cadlabs.seq;
 
-import cadlabs.par.ParSSSP;
 import cadlabs.rdd.AbstractTest;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
 import org.apache.spark.api.java.JavaRDD;
 
 
-public class SSSPTest extends AbstractTest<Path> {
+public class SeqSSSPTest extends AbstractTest<Path> {
 
 
     @Override

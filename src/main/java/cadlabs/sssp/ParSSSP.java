@@ -1,6 +1,5 @@
-package cadlabs.par;
+package cadlabs.sssp;
 
-import cadlabs.graph.GraphBuilder;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -13,11 +12,15 @@ import scala.Tuple2;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ParSSSP extends AbstractFlightAnalyser<Path> {
+public class ParSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
 
     private final String srcName, destName;
 
     private final JavaRDD<IndexedRow> graph;
+
+    public ParSSSP(JavaRDD<Flight> fligths, GraphBuilder graphBuilder) {
+        this(null, null, fligths, graphBuilder);
+    }
 
     public ParSSSP(String srcName, String destName, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
         super(flights);
@@ -28,10 +31,14 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
 
     @Override
     public Path run() {
+        int source = FlightInformer.informer.mapIdByAirport.get(srcName);
+        int destination = FlightInformer.informer.mapIdByAirport.get(destName);
+        return run(source, destination);
+    }
+
+    @Override
+    public Path run(int source, int destination) {
         graph.cache();
-        int source = FlightInformer.informer.mapIdByAirport.get(srcName); //1; // Flight.getAirportIdFromName(srcName);
-        int destination = FlightInformer.informer.mapIdByAirport.get(destName); //45; // Flight.getAirportIdFromName(destName);
-        //int source = srcName, destination = destName;
         int nAirports = (int) FlightInformer.informer.numberOfAirports;//Flight.getNumberAirports();
 
         Double[] shortestPath = new Double[nAirports];
@@ -81,6 +88,7 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> {
             });
         }
         return new Path(source, destination, from, Arrays.stream(shortestPath).mapToDouble(d -> d).toArray());
+
     }
 
 }

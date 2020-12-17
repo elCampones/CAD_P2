@@ -1,4 +1,4 @@
-package cadlabs.graph;
+package cadlabs.sssp;
 
 import cadlabs.rdd.Flight;
 import org.apache.spark.SparkContext;

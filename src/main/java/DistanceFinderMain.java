@@ -1,14 +1,12 @@
-import cadlabs.graph.GraphBuilder;
-import cadlabs.par.FlightInformer;
-import cadlabs.par.ParSSSP;
+import cadlabs.sssp.*;
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
-import cadlabs.seq.SSSP;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 
+import java.util.Random;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
@@ -24,10 +22,15 @@ public class DistanceFinderMain {
                     "\t\tThe first two parameters are the names of the airports whose distance will be set.\n" +
                     "\t\tThe final parameter is the amount of time a flight between the airports should take.\n" +
                     "\t\tThis final parameter is 4 figure natural number. The first two figures represent the hours and the latter the minutes\n" +
-                    "\t%s: Displays the optimal route and time between airports like the info command, but uses a classical Dijkstra shortest path algorithm.\n" +
-                    "\t%s: Terminates the program."
+                    "\t%s:\tDisplays the optimal route and time between airports like the info command, but uses a classical Dijkstra shortest path algorithm.\n" +
+                    "\t%s:\tDetermines the speedup of the Johnson's algorithm when compared with the sequential Dijkstra's algorithm.\n" +
+                    "\t\tReceives as parameter the number of measurements to be performed.\n" +
+                    "\t%s:\tCompares the routes computed between the two algorithms in order to identify errors in a distributed setting where unit tests are unavailable.\n" +
+                    "\t\tReceives as parameter the number of computations to be performed.\n" +
+                    "\t%s:\tTerminates the program.\n"
             , Command.HELP.commandMatch, Command.COMPUTE_DISTANCE.commandMatch
             , Command.SET_DISTANCE.commandMatch, Command.COMPUTE_SEQ.commandMatch
+            , Command.COMPUTE_SPEEDUPS.commandMatch, Command.DEBUG.commandMatch
             , Command.EXIT.commandMatch);
 
     private enum Command {
@@ -35,7 +38,9 @@ public class DistanceFinderMain {
         COMPUTE_DISTANCE("info"),
         SET_DISTANCE("time"),
         COMPUTE_SEQ("info_seq"),
-        EXIT("exit");
+        EXIT("exit"),
+        COMPUTE_SPEEDUPS("speedup"),
+        DEBUG("debug");
 
         private final String commandMatch;
 
@@ -134,6 +139,12 @@ public class DistanceFinderMain {
             case COMPUTE_SEQ:
                 computeSeq();
                 break;
+            case COMPUTE_SPEEDUPS:
+                computeSpeedups();
+                break;
+            case DEBUG:
+                computeDebug();
+                break;
             case EXIT:
                 System.out.println("Program finishing");
         }
@@ -149,13 +160,13 @@ public class DistanceFinderMain {
     private void computeSeq() {
         String origin = in.next().toUpperCase().trim();
         String dest = in.nextLine().toUpperCase().trim();
-        SSSP sssp = new SSSP(origin, dest, flights, graph);
-        computeDist(sssp);
+        SeqSSSP seqSssp = new SeqSSSP(origin, dest, flights, graph);
+        computeDist(seqSssp);
     }
 
-    private void computeDist(AbstractFlightAnalyser<Path> flightAnalyser) {
+    private void computeDist(ISSSP sssp) {
         long start = System.currentTimeMillis();
-        Path path = flightAnalyser.run();
+        Path path = sssp.run();
         long elapsed = System.currentTimeMillis() - start;
         System.out.printf("Path from %s to %s: %s\n"
                         + "Computed in %d milliseconds\n",
@@ -168,6 +179,60 @@ public class DistanceFinderMain {
         double dist = in.nextDouble();
         in.nextLine();
         graph.updateDistance(origin, dest, dist);
+    }
+
+    private void computeSpeedups() {
+        int iterations = in.nextInt();
+        in.nextLine();
+        System.out.println("Time measurements for the sequential algorithm:");
+        float seqTime = computeAlgorithmTime(new SeqSSSP(flights, graph), iterations);
+
+        System.out.println("Time measurements for the parallel algorithm:");
+        float parTime = computeAlgorithmTime(new ParSSSP(flights, graph), iterations);
+        System.out.printf("Achieved speedups: %f.2\n", seqTime / parTime);
+    }
+
+    private float computeAlgorithmTime(ISSSP sssp, int iterations) {
+        long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
+        float average = 0;
+        Random r = new Random();
+        int airports = (int) FlightInformer.informer.numberOfAirports;
+        for (int i = 0; i < iterations; i++) {
+            long start = System.currentTimeMillis();
+            sssp.run(r.nextInt(airports), r.nextInt(airports));
+            long elapsed = System.currentTimeMillis() - start;
+            min = Math.min(min, elapsed); max = Math.max(max, elapsed);
+            average = average * (i / (float)(i + 1)) + elapsed * (1 / (float) (i + 1));
+        }
+        System.out.printf(
+                "Min measurement:\t%d\n" +
+                "Max measurement:\t%d\n" +
+                "Average time:\t%f.2\n\n",
+                min, max, average);
+
+        return average;
+    }
+
+    private void computeDebug() {
+        int measurements = in.nextInt();
+        in.nextLine();
+        Random r = new Random();
+        int airports = (int) FlightInformer.informer.numberOfAirports;
+        SeqSSSP correct = new SeqSSSP(flights, graph);
+        ParSSSP testing = new ParSSSP(flights, graph);
+        boolean found = false;
+        for (int i = 0; i < measurements; i++) {
+            int orig = r.nextInt(airports), dest = r.nextInt(airports);
+            Path seqP = correct.run(orig, dest);
+            Path parP = testing.run(orig, dest);
+            if (!seqP.toString().equals(parP.toString())) {
+                System.out.printf("Error found:\n\tCorrect Path: %s\n\tFound Path: %s\n\n"
+                        , seqP, parP);
+                found = true;
+            }
+        }
+        if (!found)
+            System.out.println("No errors found.");
     }
 
 }
