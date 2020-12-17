@@ -71,18 +71,19 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
                             }
                     ).filter(v -> (v._2._2 < shortestPath[v._2._1]));
 
-            JavaPairRDD<Integer/*dest*/, Tuple2<Integer/*origin*/, Double/*newDistance*/>> minModifications =
-                    modified.mapToPair(m -> new Tuple2<>(m._2._1, new Tuple2<>(m._1, m._2._2)))
-                            .reduceByKey((v1, v2) -> (v1._2 < v2._2) ? v1 : v2);
+            //JavaPairRDD<Integer/*dest*/, Tuple2<Integer/*origin*/, Double/*newDistance*/>> minModifications =
+              //      modified.mapToPair(m -> new Tuple2<>(m._2._1, new Tuple2<>(m._1, m._2._2)))
+                //            .reduceByKey((v1, v2) -> (v1._2 < v2._2) ? v1 : v2);
 
-            List<Tuple2<Integer, Tuple2<Integer, Double>>> l = minModifications.collect();
+            List<Tuple2<Integer, Tuple2<Integer, Double>>> l = //minModifications.collect();
+                                                                modified.collect();
             toVisit.clear();
 
             l.forEach(m -> {
-                if (m._2._2 < shortestPath[m._1]) {
-                    shortestPath[m._1] = m._2._2;
-                    from[m._1] = m._2._1;
-                    toVisit.add((long)m._1);
+                if (m._2._2 < shortestPath[m._2._1]) {
+                    shortestPath[m._2._1] = m._2._2;
+                    from[m._2._1] = m._1;
+                    toVisit.add((long)m._2._1);
                 }
             });
         }
