@@ -49,17 +49,13 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
         }
         shortestPath[source] = .0;
 
-        Queue<Pair> toVisit = new PriorityQueue<>(nAirports);
-        toVisit.add(new Pair(0, source));
+        Set<Long> toVisit = new HashSet<>(nAirports);
+        toVisit.add((long)source);
 
         while (!toVisit.isEmpty()){
 
-            Set<Long> frontierNodes = toVisit.stream().map(t -> (long) t.node)
-                    .collect(Collectors.toSet());
-            toVisit.clear();
-
             JavaRDD<IndexedRow> partitionRows =
-                    graph.filter(s -> frontierNodes.contains(s.index()));
+                    graph.filter(s -> toVisit.contains(s.index()));
 
             JavaPairRDD<Integer/*origin*/, Tuple2<Integer/*dest*/, Double/*newDistance*/>> modified =
                     partitionRows.flatMapToPair(
@@ -79,11 +75,14 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
                     modified.mapToPair(m -> new Tuple2<>(m._2._1, new Tuple2<>(m._1, m._2._2)))
                             .reduceByKey((v1, v2) -> (v1._2 < v2._2) ? v1 : v2);
 
-            minModifications.collect().forEach(m -> {
+            List<Tuple2<Integer, Tuple2<Integer, Double>>> l = minModifications.collect();
+            toVisit.clear();
+
+            l.forEach(m -> {
                 if (m._2._2 < shortestPath[m._1]) {
                     shortestPath[m._1] = m._2._2;
                     from[m._1] = m._2._1;
-                    toVisit.add(new Pair(m._2._2, m._1));
+                    toVisit.add((long)m._1);
                 }
             });
         }
