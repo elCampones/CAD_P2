@@ -21,6 +21,11 @@ public class Path {
     private final List<String> path = new ArrayList<>();
 
     /**
+     * The weigth of the path between the two nodes
+     */
+    private double pathWeight;
+
+    /**
      * Constructor given the source and destination node ids and the list of predecessors
      *
      * @param source
@@ -55,6 +60,11 @@ public class Path {
      */
     public List<String> getPathAsList() {
         return this.path;
+    }
+
+
+    public double getWeight() {
+        return this.pathWeight;
     }
 
     @Override
