@@ -57,12 +57,19 @@ public class DistanceFinderMain {
     }
 
     public static void main(String[] args) {
-        if (args.length < 1)
-            System.out.println("Usage: java DistanceFinderMain [FlightsFile]\n "
-            		+ "FlightsFile: Pathname of the file containing the flights data\n");
-        SparkSession spark = initiateSpark();
-        String file = args.length > 3 ? args[2] : "data/flights.csv";
+        if (args.length < 2)
+            System.out.println("Usage: java DistanceFinderMain [Master] [FlightsFile]\n "
+                    + "Master: the master URI fore creating the SparkSession\n"
+                    + "FlightsFile: Pathname of the file containing the flights data\n");
+
+        // Set up the current Spark Session
+        String master = args.length < 1 ? "local" : args[0];
+        SparkSession spark = initiateSpark(master);
+
+        // Load the flights file
+        String file = args.length < 2 ? "data/flights.csv" : args[1];
         JavaRDD<Flight> flights = processInputFile(file, spark);
+
         try(Scanner in = new Scanner(System.in)) {
             new DistanceFinderMain(flights, in, spark);
         }
@@ -87,14 +94,14 @@ public class DistanceFinderMain {
         interpretCommands();
     }
 
-    private static SparkSession initiateSpark() {
+    private static SparkSession initiateSpark(String value) {
 
-        // start Spark session (SparkContext API may also be used)
+        // start Spark session (SparkContext API maye also be used)
         // master("local") indicates local execution
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
-//                master("local").
-                master("spark://172.30.10.116:7077").
+                master(value).
+//                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
         // only error messages are logged from this point onward
@@ -234,5 +241,4 @@ public class DistanceFinderMain {
         if (!found)
             System.out.println("No errors found.");
     }
-
 }
