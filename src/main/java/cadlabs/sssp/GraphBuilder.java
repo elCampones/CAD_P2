@@ -18,10 +18,10 @@ public class GraphBuilder {
 
     private JavaRDD<MatrixEntry> graph;
 
-//    private final SparkContext spark;
+    private final JavaSparkContext spark;
 
-    public GraphBuilder(JavaRDD<Flight> fligths) {
-//        this.spark = spark;
+    public GraphBuilder(JavaRDD<Flight> fligths, JavaSparkContext spark) {
+        this.spark = spark;
         this.graph = buildGraph(fligths);
     }
 
@@ -76,12 +76,11 @@ public class GraphBuilder {
                 return e;
             });
         else {
-            /*List<MatrixEntry> newEdges = new ArrayList<>(2);
+            List<MatrixEntry> newEdges = new ArrayList<>(2);
             newEdges.add(new MatrixEntry(o, d, dist));
             newEdges.add(new MatrixEntry(d, o, dist));
-            graph = graph.union(((JavaSparkContext)spark).parallelize(newEdges));*/
+            graph = graph.union(spark.parallelize(newEdges));
         }
-
     }
 
     private boolean existsEdge(long orig, long dest) {
