@@ -5,6 +5,7 @@ import org.apache.spark.api.java.JavaRDD;
 import scala.Tuple2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FlightInformer {
@@ -28,9 +29,6 @@ public class FlightInformer {
         mapIdByAirport = flights.mapToPair(flight -> new Tuple2<>(flight.origin, (int)flight.origInternalId))
                 .reduceByKey((v1, v2) -> v1).collectAsMap();
         numberOfAirports = mapIdByAirport.values().size();
-
-//        System.out.println(numberOfAirports);
-//        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH");
     }
 
 }

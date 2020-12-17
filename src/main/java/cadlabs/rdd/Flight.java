@@ -126,11 +126,12 @@ public class Flight implements Serializable {
 
     }
 
-    public static void generateIds(Collection<Flight> flights) {
+    public static Collection<Flight> generateIds(Collection<Flight> flights) {
         for(Flight f : flights) {
             f.origInternalId = internalId(f.org_id, f.origin);
             f.destInternalId = internalId(f.dest_id, f.dest);
         }
+        return flights;
     }
 
     public static Flight parseFlight(String line) {
@@ -146,14 +147,19 @@ public class Flight implements Serializable {
 
     private static long internalId(long airport, String name) {
         synchronized (airports) {
-            Integer id = airports.get(airport);
-            if (id == null) {
-                id = internalIds++;
-                airports.put(airport, id);
-                airportsRev.put(id, name);
-                airportsByName.put(name, id);
+            synchronized (airportsRev) {
+                synchronized (airportsByName) {
+                    Integer id = airports.get(airport);
+
+                    if (id == null) {
+                        id = internalIds++;
+                        airports.put(airport, id);
+                        airportsRev.put(id, name);
+                        airportsByName.put(name, id);
+                    }
+                    return id;
+                }
             }
-            return id;
         }
     }
 

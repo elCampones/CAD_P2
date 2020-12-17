@@ -6,8 +6,11 @@ import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
 import cadlabs.seq.SSSP;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 public class DistanceFinderMain {
@@ -68,9 +71,12 @@ public class DistanceFinderMain {
 
     public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in) {
         this.flights = fligths;
-//        Flight.generateIds(flights.collect());
-        flights.collect();
-        FlightInformer.informer.setInformer(flights);
+        fligths.collect();
+
+//        List<Flight> temp = (List<Flight>)Flight.generateIds(flights.collect());
+//        JavaRDD<Flight> temp2 = spark.parallelize(temp);
+        FlightInformer.informer.setInformer(fligths);
+
         graph = new GraphBuilder(fligths);
         this.in = in;
         interpretCommands();
@@ -82,8 +88,8 @@ public class DistanceFinderMain {
         // master("local") indicates local execution
         SparkSession spark = SparkSession.builder().
                 appName("FlightAnalyser").
-//                master("local").
-                master("spark://172.30.10.116:7077").
+                master("local").
+//                master("spark://172.30.10.116:7077").
                 getOrCreate();
 
         // only error messages are logged from this point onward
