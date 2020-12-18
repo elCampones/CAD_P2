@@ -206,6 +206,8 @@ public class DistanceFinderMain {
                 build(sparkContext.sc()).collect();
         Flight.generateRandomGraphIds(l);
 
+        l.forEach(flight -> System.out.println(flight.org_id + " " + flight.dest_id));
+
         JavaRDD<Flight> tempFlights = sparkContext.parallelize(l);
         FlightInformer.informer.setInformer(tempFlights);
         GraphBuilder gb = new GraphBuilder(tempFlights, sparkContext);

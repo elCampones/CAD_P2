@@ -59,9 +59,9 @@ public class DatasetGenerator {
         for (int i = 0; i < numberNodes; i++) {
 
             list.add(newNode(i, (i+1)%this.numberNodes));
-            for (int j = 0; j < this.percentageOfConnections; j++) {
-                int dest = randomizer.nextInt(numberNodes);
-                list.add(newNode(i, dest));
+            for (int j = i+2; j < numberNodes; j++) {
+                if (randomizer.nextInt(100) <= this.percentageOfConnections)
+                    list.add(newNode(i, j));
             }
         }
 
