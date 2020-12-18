@@ -5,13 +5,13 @@ import org.apache.spark.sql.Row;
 
 public abstract class AbstractFlightAnalyser<T> {
 
-	protected final Dataset<Row> flights;
-	
-	public AbstractFlightAnalyser(Dataset<Row> flights) {
-		this.flights = flights;
-	}
-	
-	
-	public abstract T run();
-	
+    protected final Dataset<Row> flights;
+
+    public AbstractFlightAnalyser(Dataset<Row> flights) {
+        this.flights = flights;
+    }
+
+
+    public abstract T run();
+
 }

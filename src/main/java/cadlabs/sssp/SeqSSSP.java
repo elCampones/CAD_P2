@@ -1,14 +1,11 @@
-package cadlabs.seq;
+package cadlabs.sssp;
 
 
 import cadlabs.rdd.AbstractFlightAnalyser;
 import cadlabs.rdd.Flight;
-
 import cadlabs.rdd.Path;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
-import scala.Tuple2;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +14,7 @@ import java.util.stream.IntStream;
 /**
  * A sequential implementation of Dijkstra Single Source Shortest Path
  */
-public class SSSP extends AbstractFlightAnalyser<Path> {
+public class SeqSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
 
     /**
      * Representation of absence of edge between two nodes
@@ -44,20 +41,29 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
      */
     private final String destinationName;
 
+    public SeqSSSP(JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
+        this(null, null, flights, graphBuilder);
+    }
 
-    public SSSP(String source, String destination, JavaRDD<Flight> flights) {
+    public SeqSSSP(String source, String destination, JavaRDD<Flight> flights, GraphBuilder graphBuilder) {
         super(flights);
         this.sourceName = source;
         this.destinationName = destination;
-        this.graph = buildGraph();
+        this.graph = graphBuilder.getMaterializedGraph();
     }
 
     @Override
     public Path run() {
         // identifiers of the source and destination nodes
-        int source = Flight.getAirportIdFromName(sourceName);
-        int destination = Flight.getAirportIdFromName(destinationName);
-        int nAirports = (int) Flight.getNumberAirports();
+        int source = FlightInformer.informer.mapIdByAirport.get(sourceName);
+        int destination = FlightInformer.informer.mapIdByAirport.get(destinationName);
+        int nAirports = (int) FlightInformer.informer.numberOfAirports;
+        return run(source, destination, nAirports);
+    }
+
+    @Override
+    public Path run(int source, int destination, int nAirports) {
+
 
         // The set of nodes to visit
         List<Integer> toVisit = IntStream.range(0, nAirports).boxed().collect(Collectors.toList());
@@ -90,7 +96,7 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
 
             toVisit.remove((Integer) u);
 
-//          System.out.println("Visiting " + u + ". Nodes left to visit: " + toVisit.size());
+            //                System.out.println("Going through " + u);
 
             for (Integer v : toVisit) {
                 double newPath = l[u] + getWeight(u, v);
@@ -100,40 +106,8 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
                 }
             }
         }
-        return null;
-        //return new Path((long)source, (longdestination /*l[destination]*/, predecessor);
-    }
 
-    /**
-     * Build the graph using Spark for convenience
-     * @return The graph
-     */
-    private List<MatrixEntry> buildGraph() {
-
-        JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux1 =
-                this.flights.
-                        mapToPair(
-                                flight ->
-                                        new Tuple2<>(
-                                                new Tuple2<>(flight.origInternalId, flight.destInternalId),
-                                                new Tuple2<>(flight.arrtime - flight.deptime < 0 ?
-                                                        flight.arrtime - flight.deptime + 2400 :
-                                                        flight.arrtime - flight.deptime, 1)));
-
-        JavaPairRDD<Tuple2<Long, Long>, Tuple2<Double, Integer>> aux2 =
-                aux1.reduceByKey((duration1, duration2) ->
-                        new Tuple2<>(duration1._1 + duration2._1,
-                                duration1._2 + duration2._2));
-
-        JavaPairRDD<Tuple2<Long, Long>, Double> flightAverageDuration =
-                aux2.mapToPair(flightDuration ->
-                        new Tuple2<>(flightDuration._1, flightDuration._2._1 / flightDuration._2._2));
-
-        JavaRDD<MatrixEntry> entries =
-                flightAverageDuration.map(
-                        flight ->new MatrixEntry(flight._1._1, flight._1._2, flight._2));
-
-        return entries.collect();
+        return new Path(source, destination, predecessor, l);
     }
 
 
@@ -143,10 +117,9 @@ public class SSSP extends AbstractFlightAnalyser<Path> {
      * @return The edge (of type MatrixEntry), if it exists, null otherwise
      */
     private MatrixEntry getEdge(int origin, int dest) {
-        for (MatrixEntry e : this.graph) {
+        for (MatrixEntry e : this.graph)
             if (e.i() == origin && e.j() == dest)
                 return e;
-        }
         return null;
     }
 

@@ -16,3 +16,7 @@ out
 .idea/
 
 *.csv#
+
+*.iml
+
+src/main/java/META-INF/MANIFEST.MF
