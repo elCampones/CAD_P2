@@ -17,13 +17,16 @@ public class DistanceFinderMain {
                     "\t%s:\tDisplays help menu (this one)\n" +
                     "\t%s:\tReceives the names of two airports in the graph and outputs the ideal route and optimal time between them.\n" +
                     "\t\t\tThe amount of time required to compute these properties is also presented.\n" +
-                    "\t%s: Sets the average flight time between two airports.\n" +
+                    "\t%s:\tSets the average flight time between two airports.\n" +
                     "\t\t\tThe first two parameters are the names of the airports whose distance will be set.\n" +
                     "\t\t\tThe final parameter is the amount of time a flight between the airports should take.\n" +
                     "\t\t\tThis final parameter is 4 figure natural number. The first two figures represent the hours and the latter the minutes\n" +
                     "\t%s:\tDisplays the optimal route and time between airports like the info command, but uses a classical Dijkstra shortest path algorithm.\n" +
                     "\t%s:\tDetermines the speedup of the Johnson's algorithm when compared with the sequential Dijkstra's algorithm.\n" +
-                    "\t\t\tReceives as parameter the number of measurements to be performed.\n" +
+                    "\t\t\t\tReceives three parameters:\n" +
+                    "\t\t\t\t\tthe number of measurements to be performed;\n" +
+                    "\t\t\t\t\tthe number of nodes in the graph;\n" +
+                    "\t\t\t\t\tand a percentual value of the graph's connectivity.\n" +
                     "\t%s:\tCompares the routes computed between the two algorithms in order to identify errors in a distributed setting where unit tests are unavailable.\n" +
                     "\t\t\tReceives as parameter the number of computations to be performed.\n" +
                     "\t%s:\tTerminates the program.\n"
