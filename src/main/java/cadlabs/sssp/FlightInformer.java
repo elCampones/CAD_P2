@@ -24,6 +24,10 @@ public class FlightInformer {
     }
 
     public void setInformer(JavaRDD<Flight> flights) {
+        mapIdByAirport.clear();
+        mapAirportById.clear();
+        numberOfAirports = 0;
+
         mapAirportById = flights.mapToPair(flight -> new Tuple2<>((int)flight.origInternalId, flight.origin))
                 .reduceByKey((v1, v2) -> v1).collectAsMap();
         mapIdByAirport = flights.mapToPair(flight -> new Tuple2<>(flight.origin, (int)flight.origInternalId))

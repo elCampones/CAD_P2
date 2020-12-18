@@ -88,6 +88,7 @@ public class DistanceFinderMain {
 
         sparkContext = new JavaSparkContext(sparkSession.sparkContext());
         List<Flight> l = (List<Flight>)Flight.generateIds(fligths.collect());
+
         this.flights = sparkContext.parallelize(l);
 
         FlightInformer.informer.setInformer(flights);
@@ -197,17 +198,21 @@ public class DistanceFinderMain {
         int percentageConnection = in.nextInt();
         in.nextLine();
 
-        JavaRDD<Flight> tempFlights =  new DatasetGenerator(numAirports, percentageConnection, new Random().nextInt()).
-                build(sparkContext.sc());
+        List<Flight> l = new DatasetGenerator(numAirports,
+                percentageConnection, new Random().nextInt()).
+                build(sparkContext.sc()).collect();
+        Flight.generateRandomGraphIds(l);
+
+        JavaRDD<Flight> tempFlights = sparkContext.parallelize(l);
         FlightInformer.informer.setInformer(tempFlights);
         GraphBuilder gb = new GraphBuilder(tempFlights, sparkContext);
 
         System.out.println("Time measurements for the sequential algorithm:");
-        //float seqTime = computeAlgorithmTime(new SeqSSSP(tempFlights, gb), iterations, numAirports);
+        float seqTime = computeAlgorithmTime(new SeqSSSP(tempFlights, gb), iterations, numAirports);
 
         System.out.println("Time measurements for the parallel algorithm:");
         float parTime = computeAlgorithmTime(new ParSSSP(tempFlights, gb), iterations, numAirports);
-        //System.out.printf("Achieved speedups: %f.2\n", seqTime / parTime);
+        System.out.printf("Achieved speedups: %f.2\n", seqTime / parTime);
 
         FlightInformer.informer.setInformer(this.flights);
     }

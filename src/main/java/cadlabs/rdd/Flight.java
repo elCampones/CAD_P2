@@ -127,9 +127,19 @@ public class Flight implements Serializable {
     }
 
     public static Collection<Flight> generateIds(Collection<Flight> flights) {
+        internalIds = 0;
         for (Flight f : flights) {
             f.origInternalId = internalId(f.org_id, f.origin);
             f.destInternalId = internalId(f.dest_id, f.dest);
+        }
+        return flights;
+    }
+
+    public static Collection<Flight> generateRandomGraphIds(Collection<Flight> flights) {
+        internalIds = 0;
+        for (Flight f : flights) {
+            f.origInternalId = f.org_id;
+            f.destInternalId = f.dest_id;
         }
         return flights;
     }
@@ -178,8 +188,6 @@ public class Flight implements Serializable {
     }
 
     public static int getAirportIdFromName(String name) {
-        // TODO Remove this
-        // TODO : Remove this
         return airportsByName.get(name);
     }
 }
