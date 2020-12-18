@@ -33,14 +33,13 @@ public class ParSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
     public Path run() {
         int source = FlightInformer.informer.mapIdByAirport.get(srcName);
         int destination = FlightInformer.informer.mapIdByAirport.get(destName);
-        return run(source, destination);
+        int nAirports = (int)FlightInformer.informer.numberOfAirports;
+        return run(source, destination, nAirports);
     }
 
     @Override
-    public Path run(int source, int destination) {
+    public Path run(int source, int destination, int nAirports) {
         graph.cache();
-        int nAirports = (int) FlightInformer.informer.numberOfAirports;//Flight.getNumberAirports();
-
         Double[] shortestPath = new Double[nAirports];
         int[] from = new int[nAirports];
         for (int i = 0; i < shortestPath.length; i++) {

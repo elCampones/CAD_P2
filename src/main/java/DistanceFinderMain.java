@@ -1,3 +1,4 @@
+import cadlabs.rdd.DatasetGenerator;
 import cadlabs.sssp.*;
 import cadlabs.rdd.Flight;
 import cadlabs.rdd.Path;
@@ -67,6 +68,8 @@ public class DistanceFinderMain {
         // Load the flights file
         String file = args.length < 2 ? "data/flights.csv" : args[1];
         JavaRDD<Flight> flights = processInputFile(file, spark);
+        //JavaRDD<Flight> flights = new DatasetGenerator(500, 20, 0).build(spark.sparkContext());
+
 
         try(Scanner in = new Scanner(System.in)) {
             new DistanceFinderMain(flights, in, spark);
@@ -75,13 +78,15 @@ public class DistanceFinderMain {
 
     private final GraphBuilder graph;
 
+    private final JavaSparkContext sparkContext;
+
     private final JavaRDD<Flight> flights;
 
     private final Scanner in;
 
     public DistanceFinderMain(JavaRDD<Flight> fligths, Scanner in, SparkSession sparkSession) {
 
-        JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
+        sparkContext = new JavaSparkContext(sparkSession.sparkContext());
         List<Flight> l = (List<Flight>)Flight.generateIds(fligths.collect());
         this.flights = sparkContext.parallelize(l);
 
@@ -188,23 +193,32 @@ public class DistanceFinderMain {
 
     private void computeSpeedups() {
         int iterations = in.nextInt();
+        int numAirports = in.nextInt();
+        int percentageConnection = in.nextInt();
         in.nextLine();
+
+        JavaRDD<Flight> tempFlights =  new DatasetGenerator(numAirports, percentageConnection, new Random().nextInt()).
+                build(sparkContext.sc());
+        FlightInformer.informer.setInformer(tempFlights);
+        GraphBuilder gb = new GraphBuilder(tempFlights, sparkContext);
+
         System.out.println("Time measurements for the sequential algorithm:");
-        float seqTime = computeAlgorithmTime(new SeqSSSP(flights, graph), iterations);
+        //float seqTime = computeAlgorithmTime(new SeqSSSP(tempFlights, gb), iterations, numAirports);
 
         System.out.println("Time measurements for the parallel algorithm:");
-        float parTime = computeAlgorithmTime(new ParSSSP(flights, graph), iterations);
-        System.out.printf("Achieved speedups: %f.2\n", seqTime / parTime);
+        float parTime = computeAlgorithmTime(new ParSSSP(tempFlights, gb), iterations, numAirports);
+        //System.out.printf("Achieved speedups: %f.2\n", seqTime / parTime);
+
+        FlightInformer.informer.setInformer(this.flights);
     }
 
-    private float computeAlgorithmTime(ISSSP sssp, int iterations) {
+    private float computeAlgorithmTime(ISSSP sssp, int iterations, int airports) {
         long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
         float average = 0;
         Random r = new Random();
-        int airports = (int) FlightInformer.informer.numberOfAirports;
         for (int i = 0; i < iterations; i++) {
             long start = System.currentTimeMillis();
-            sssp.run(r.nextInt(airports), r.nextInt(airports));
+            sssp.run(r.nextInt(airports), r.nextInt(airports), airports);
             long elapsed = System.currentTimeMillis() - start;
             min = Math.min(min, elapsed); max = Math.max(max, elapsed);
             average = average * (i / (float)(i + 1)) + elapsed * (1 / (float) (i + 1));
@@ -228,8 +242,8 @@ public class DistanceFinderMain {
         boolean found = false;
         for (int i = 0; i < measurements; i++) {
             int orig = r.nextInt(airports), dest = r.nextInt(airports);
-            Path seqP = correct.run(orig, dest);
-            Path parP = testing.run(orig, dest);
+            Path seqP = correct.run(orig, dest, airports);
+            Path parP = testing.run(orig, dest, airports);
             if (!seqP.toString().equals(parP.toString())) {
                 System.out.printf("Error found:\n\tCorrect Path: %s\n\tFound Path: %s\n\n"
                         , seqP, parP);

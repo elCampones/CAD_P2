@@ -14,7 +14,7 @@ public class Path {
 
     public final String dest;
 
-    public final double distance;
+    //public final double distance;
     /**
      * The list representation of the path
      */
@@ -39,7 +39,7 @@ public class Path {
             this.path.add(0, FlightInformer.informer.mapAirportById.get(v));
 
         this.path.add(0, FlightInformer.informer.mapAirportById.get((int) source));
-        distance = computeDistance(source, destination, distances, predecessor);
+        //distance = computeDistance(source, destination, distances, predecessor);
     }
 
     private double computeDistance(long source, long destination, double[] distances, int[] predecessor) {

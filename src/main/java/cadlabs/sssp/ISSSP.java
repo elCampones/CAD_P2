@@ -6,5 +6,5 @@ public interface ISSSP {
 
     Path run();
 
-    Path run(int source, int destination);
+    Path run(int source, int destination, int nAirports);
 }

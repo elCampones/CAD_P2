@@ -57,12 +57,13 @@ public class SeqSSSP extends AbstractFlightAnalyser<Path> implements ISSSP {
         // identifiers of the source and destination nodes
         int source = FlightInformer.informer.mapIdByAirport.get(sourceName);
         int destination = FlightInformer.informer.mapIdByAirport.get(destinationName);
-        return run(source, destination);
+        int nAirports = (int) FlightInformer.informer.numberOfAirports;
+        return run(source, destination, nAirports);
     }
 
     @Override
-    public Path run(int source, int destination) {
-        int nAirports = (int) FlightInformer.informer.numberOfAirports;
+    public Path run(int source, int destination, int nAirports) {
+
 
         // The set of nodes to visit
         List<Integer> toVisit = IntStream.range(0, nAirports).boxed().collect(Collectors.toList());
